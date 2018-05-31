@@ -1,0 +1,118 @@
+body {
+  background: #222;
+  font-family: Cantarell;
+}
+
+p {
+  color: #fff;
+}
+
+#div-title {
+  text-align: center;
+  font-size: 25px;
+}
+
+#div-upload {
+  width: 512px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#div-upload div {
+  display: inline-block;
+  width: 50%;
+  padding: 0px;
+  border: 0px;
+  
+  vertical-align: top;
+}
+
+#div-upload label, #div-upload input {
+  display: block;
+  width: 200px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 40px;
+  
+  border: 2px solid #fff;
+  border-radius: 10px;
+  padding: 0px;
+  
+  background: #fff;
+  color: #000;
+  text-align: center;
+  cursor: pointer;
+}
+
+#div-upload label, #div-upload input::placeholder {
+  font-size: 18px;
+  color: #222;
+  opacity: 1;
+}
+
+#div-preview {
+  width: 512px;
+  height: 512px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 30px;
+  white-space: nowrap;
+  
+  background-color: #000;
+  
+  text-align: center;
+}
+
+#preview-css-buffer {
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+}
+
+#preview {
+  max-width: 512px;
+  max-height: 512px;
+  vertical-align: middle;
+}
+
+#message {
+  text-align: center;
+  font-size: 25px;
+  opacity: 0;
+}
+
+#div-reclass {
+  margin-top: 50px;
+  opacity: 0;
+  display: None;
+}
+
+#div-reclass p {
+  text-align: center;
+  font-size: 20px;
+}
+
+#div-reclass-buttons {
+  width: 350px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#div-reclass-buttons div {
+  display: inline-block;
+  width: 50%;
+}
+
+#div-reclass-buttons input {
+  display: block;
+  width: 150px;
+  height: 30px;
+  margin-left: auto;
+  margin-right: auto;
+  
+  background: #fff;
+  border: 2px solid #fff;
+  border-radius: 10px;
+
+  cursor: pointer;
+}

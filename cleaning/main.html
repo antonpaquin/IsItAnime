@@ -1,0 +1,215 @@
+<html>
+<head>
+    <style>
+        #imagebox {
+            width: 100%;
+        }
+        
+        .img-item {
+            width: 100%;
+            display: block;
+        }
+        
+        .img-item.selected {
+            background-color: #bbbbbb;
+        }
+        
+        .img-item:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+        
+        .info {
+            display: inline;
+            float: left;
+            width: 500px;
+        }
+        
+        .info p {
+            display: block;
+            max-width: 300px;
+        }
+
+        img {
+            display: inline;
+            max-width: 512px;
+            height: 512px;
+            float: left;
+        }
+    </style>
+</head>
+<body>
+    <div id="imagebox">
+    </div>
+    <script>
+        var prefix = 'user';
+        var default_class = '';
+        var opposite_class = '';
+    
+        if (prefix === 'safebooru') {
+            default_class = 'anime';
+        } else if (prefix == 'chana') {
+            default_class = 'anime';
+        } else if (prefix == 'chanco') {
+            default_class = 'notanime';
+        } else if (prefix == 'imgur') {
+            default_class = 'notanime';
+        } else if (prefix == 'imagenet') {
+            default_class = 'notanime';
+        } else if (prefix == 'user') {
+            default_class = 'anime';
+        }
+
+        if (default_class == 'anime') {
+            opposite_class = 'notanime';
+        } else if (default_class == 'notanime') {
+            opposite_class = 'anime';
+        }
+    </script>
+    <script>
+        function getKeys(callback) {
+            var req = new XMLHttpRequest();
+            req.open('GET', '/keys?prefix=' + prefix, true);
+            req.onload = function() {
+                if (req.status == 200) {
+                    callback(JSON.parse(req.response));
+                } else {
+                    console.log('getKeys failed');
+                }
+            };
+            req.send();
+        }
+        function classify(key, clss) {
+            var req = new XMLHttpRequest();
+            req.open('GET', 'http://localhost:8080/classify?key=' + key + '&class=' + clss, true);
+            req.onload = function() {
+                if (req.status == 200) {
+                    console.log('classified ' + key + ' as ' + clss);
+                } else {
+                    console.log('classify failed');
+                }
+            };
+            req.send();
+        }
+    </script>
+    <script>
+        var imagebox = document.getElementById('imagebox');
+        var imgCount = 0;
+
+        function addImage(key) {
+            var image_new = document.createElement('div');
+            image_new.classList.add('img-item');
+            image_new.setAttribute('key', key);
+            image_new.setAttribute('id', 'img-' + imgCount);
+            imgCount += 1;
+            imagebox.appendChild(image_new);
+            image_new.onclick = function() {
+                select(this);
+            }
+
+            var info_new = document.createElement('div');
+            info_new.classList.add('info');
+            image_new.appendChild(info_new);
+
+            var e_new = document.createElement('p');
+            e_new.innerHTML = "Source: " + prefix;
+            info_new.appendChild(e_new);
+
+            e_new = document.createElement('p');
+            e_new.innerHTML = "Guess: " + default_class;
+            info_new.appendChild(e_new);
+
+            e_new = document.createElement('p');
+            e_new.innerHTML = "Key: " + key;
+            info_new.appendChild(e_new);
+            
+            e_new = document.createElement('p');
+            e_new.innerHTML = "Commit: " + default_class;
+            info_new.appendChild(e_new);
+
+            e_new = document.createElement('img');
+            e_new.setAttribute('src', 'https://s3.amazonaws.com/isitanime-data-raw/' + key);
+            image_new.appendChild(e_new);
+        }
+    </script>
+    <script>
+        var selected = null;
+        var selectedKey = null;
+        var selectedId = null;
+        
+        function select(elem) {
+            if (selected != null) {
+                selected.classList.remove('selected');
+            }
+            selected = elem;
+            elem.classList.add('selected');
+            selectedId = parseInt(elem.id.substring(4));
+            selectedKey = elem.attributes.key.value;
+            window.scrollTo(0, elem.offsetTop);
+        }
+
+        function selectNext() {
+            var next = document.getElementById('img-' + (selectedId + 1));
+            select(next);
+        }
+    </script>
+    <script>
+        function addKeys(keys) {
+            for (let key of keys) {
+                addImage(key);
+            }
+            if (selected == null) {
+                select(document.getElementsByClassName('img-item')[0]);
+            }
+        }
+        function onReachBottom() {
+            getKeys(addKeys);
+        }
+        function checkScroll() {
+            var scrollMargin = document.documentElement.scrollHeight - window.innerHeight - window.scrollY;
+            if (scrollMargin < 2500) {
+                onReachBottom();
+            }
+        }
+        document.addEventListener('scroll', checkScroll);
+        onReachBottom();
+    </script>
+    <script>
+        var uncommitted_classes = new Map(); 
+
+        function classifySelectedNoCommit(clss) {
+            uncommitted_classes.set(selectedKey, [clss, selected]);
+            selected.children[0].children[3].innerHTML = "Commit: " + clss;
+        }
+
+        function commit() {
+            uncommitted_classes.forEach(function(v, k, m) {
+                classify(k, v[0]);
+                v[1].remove();
+            });
+            uncommitted_classes.clear();
+            window.scrollTo(0, selected.offsetTop);
+        }
+
+        function handleHotkey(hkey) {
+            if (hkey == 'Enter') {
+                classifySelectedNoCommit(default_class);
+                selectNext();
+            } else if (hkey == '1') {
+                classifySelectedNoCommit(opposite_class);
+                selectNext();
+            } else if (hkey == '5') {
+                classifySelectedNoCommit('delete');
+                selectNext();
+            } else if (hkey == 'c') {
+                commit();
+            }
+            checkScroll();
+        }
+        document.onkeydown = function(e) {
+            handleHotkey(e.key);
+        };
+    </script>
+</body>
+</html>

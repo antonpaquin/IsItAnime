@@ -1,0 +1,16 @@
+154,155c154,155
+<     def write(self, data, async=False):
+<         self.handler.addOutput(data, async)
+---
+>     def write(self, data, asyncc=False):
+>         self.handler.addOutput(data, asyncc)
+240,241c240,241
+<     def addOutput(self, data, async=False):
+<         if async:
+---
+>     def addOutput(self, data, asyncc=False):
+>         if asyncc:
+247c247
+<         if async:
+---
+>         if asyncc:
