@@ -1,6 +1,16 @@
+@font-face {
+    font-family: "cantarell";
+    src: url("cantarell.ttf");
+}
+
+@font-face {
+    font-family: "irohamaru";
+    src: url("irohamaru.ttf");
+}
+
 body {
   background: #222;
-  font-family: Cantarell;
+  font-family: cantarell;
 }
 
 p {
@@ -75,14 +85,14 @@ p {
   vertical-align: middle;
 }
 
-#message {
+#message, #submessage {
   text-align: center;
   font-size: 25px;
   opacity: 0;
 }
 
 #div-reclass {
-  margin-top: 50px;
+  margin-top: 20px;
   opacity: 0;
   display: None;
 }

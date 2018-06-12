@@ -1,5 +1,6 @@
 var e_upload_url = document.getElementById('upload-url');
 var e_message = document.getElementById('message');
+var e_submessage = document.getElementById('submessage');
 var e_upload_file = document.getElementById('upload-file');
 var e_preview = document.getElementById('preview');
 var e_reclass = document.getElementById('div-reclass');
@@ -42,6 +43,11 @@ function set_message(msg) {
     e_message.style.opacity = 1;
 }
 
+function set_submessage(msg) {
+    e_submessage.innerHTML = msg;
+    e_submessage.style.opacity = 1;
+}
+
 function encode_url(base, params) {
     let res = [];
     for (let p in params) {
@@ -75,8 +81,32 @@ function handle_response_url(response) {
         return;
     }
 	e_preview.src = 'data:image/jpeg;base64,' + data['data'];
+    display_classification(data);
+}
+
+function display_classification(data) {
     anime_percent = Math.round(1000 * data.classes.anime) / 10;
     set_message(anime_percent + '% Anime');
+
+    if (anime_percent > 99) {
+        e_submessage.style.fontFamily = 'irohamaru';
+    } else {
+        e_submessage.style.fontFamily = 'cantarell';
+    }
+
+    if (anime_percent > 99) {
+        set_submessage('~~アニメです~~');
+    } else if (anime_percent > 85) {
+        set_submessage('This is anime!');
+    } else if (anime_percent > 60) {
+        set_submessage('This is somewhat anime');
+    } else if (anime_percent > 40) {
+        set_submessage('This might be anime');
+    } else if (anime_percent > 15) {
+        set_submessage('Probably not anime');
+    } else {
+        set_submessage('This is not anime');
+    }
     recent_key = data.key;
     expose_reclassify();
 }
@@ -104,10 +134,7 @@ function handle_response_file(response) {
         set_message('Error: ' + data['error']);
         return;
     }
-    anime_percent = Math.round(1000 * data.classes.anime) / 10;
-    set_message(anime_percent + '% Anime');
-    recent_key = data.key;
-    expose_reclassify();
+    display_classification(data);
 }
 
 function expose_reclassify() {
@@ -124,9 +151,9 @@ function hide_reclassify() {
     e_reclass_msg.innerHTML = 'Thanks!';
 }
 
-e_reclass_anime.onclick = function() {
+function reclassify_http(clss) {
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', encode_url('https://api.isitanime.website/isitanime', {'classify': 'anime', 'key': recent_key}));
+    xhr.open('POST', encode_url('https://api.isitanime.website/isitanime', {'classify': clss, 'key': recent_key}));
     xhr.onload = function() {
         if (xhr.status === 200) {
             console.log('daijoubu desu~!');
@@ -139,17 +166,10 @@ e_reclass_anime.onclick = function() {
     hide_reclassify();
 }
 
+e_reclass_anime.onclick = function() {
+    reclassify_http('anime');
+}
+
 e_reclass_notanime.onclick = function() {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', encode_url('https://api.isitanime.website/isitanime', {'classify': 'notanime', 'key': recent_key}));
-    xhr.onload = function() {
-        if (xhr.status === 200) {
-            console.log('daijoubu desu~!');
-        } else {
-            console.log('reclass failed');
-        }
-    };
-    xhr.setRequestHeader('accept', 'application/json');
-    xhr.send();
-    hide_reclassify();
+    reclassify_http('notanime');
 }
